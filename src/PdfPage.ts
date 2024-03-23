@@ -161,7 +161,7 @@ export default class PdfPage {
    */
   createModule(name: string, height: number) {
     const module = document.createElement("div");
-    module.style.height = height + "px";
+    // module.style.height = height + "px";
     module.classList.add(name);
     return module;
   }
@@ -187,6 +187,10 @@ export default class PdfPage {
         this.wraper
           ?.querySelector(`.${Const.printMainName}`)
           ?.appendChild(ele as Element);
+          // if (type !== 'MODULE') {
+          //   this.wraper
+          //   ?.querySelector(`.${Const.printMainName}`)?.classList.add('contentPage');
+          // }
       }
       this.mainHeigth = this.mainHeigth - height;
     }

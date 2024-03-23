@@ -81,14 +81,14 @@ export interface EleStyleInfo {
 }
 
 export interface TbModuleInfoItem {
-  module: HTMLElement
+  modules: Array<HTMLElement>
   height: number
   talbeWraper?: boolean
   tbHeaderHeight?: number
 }
 export interface TbQueueItem {
   height: number
-  module: HTMLElement
+  modules: Array<HTMLElement>
 }
 export interface TbModuleInfo {
   tbTopInfo: TbQueueItem
