@@ -21,7 +21,7 @@ export default class SplitePage extends DfsChild {
    */
   splitTable(ele: Ele, distance: number) {
     const moduleInfo = this.childMap.get(ele)
-    moduleInfo.tableModuleInfo?.forEach((tableModuleInfo: any) => {
+    moduleInfo.tableModuleInfoList?.forEach((tableModuleInfo: any) => {
       const {
         tbTopInfo,
         table,
@@ -44,24 +44,6 @@ export default class SplitePage extends DfsChild {
         let item: TbModuleInfoItem = tbQueue.shift() as TbModuleInfoItem
         item.modules.forEach((module: any) => {
           let flag = false
-          if (
-            module.classList.contains(Const.cardTableTopWraper) &&
-            distance > minHeight
-          ) {
-            flag = true
-          }
-
-          if (module.classList.contains(Const.cardTableWraper) && distance > item.height) {
-            flag = true
-          }
-
-          if (
-            module.classList.contains(Const.cardTableBomWraper) &&
-            distance > module.height
-          ) {
-            flag = true
-          }
-
           if (flag) {
             distance = this.appendModule(module, module.height, ModuleType.TB_MODULE)
           } else {

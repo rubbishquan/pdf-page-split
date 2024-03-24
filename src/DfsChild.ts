@@ -205,7 +205,7 @@ export default class DfsChild extends PdfPage {
   }
 
   getEleHeight(ele: HTMLElement, className: string) {
-    const modules: any = ele.querySelectorAll("." + className);
+    const modules: any = ele.getElementsByTagName(className) || ele.querySelectorAll("." + className);
     let height = 0;
     modules.forEach((module: any) => {
       module.height = calcHeight(module);
