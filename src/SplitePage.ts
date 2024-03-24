@@ -44,6 +44,9 @@ export default class SplitePage extends DfsChild {
         let item: TbModuleInfoItem = tbQueue.shift() as TbModuleInfoItem
         item.modules.forEach((module: any) => {
           let flag = false
+          if (distance > module.height) {
+            flag = true
+          }
           if (flag) {
             distance = this.appendModule(module, module.height, ModuleType.TB_MODULE)
           } else {
