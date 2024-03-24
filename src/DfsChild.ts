@@ -52,42 +52,40 @@ export default class DfsChild extends PdfPage {
     return hasTable;
   }
 
-  getChildrenModuleInfo(ele: HTMLElement) {
+  getChildrenModuleInfo(ele: HTMLElement, moduleInfo: any) {
     ele.childNodes.forEach((item: any) => {
       const isTable = item.classList.contains(Const.tableClass);
-      let hasSubTable = false;
-      hasSubTable = this.isModuleHasTable(item);
-      if (isTable && !this.childMap.has(item)) {
+      if (isTable) {
         const height = calcHeight(item);
-        this.childMap.set(item, {
-          tableModuleInfo: this.getTableModuleInfo(item, height),
-          height,
-          isTable: hasSubTable,
-        });
+        moduleInfo.tableModuleInfoList.push(this.getTableModuleInfo(item, height))
+      } else {
+        let hasSubTable = false;
+        hasSubTable = this.isModuleHasTable(item);
+        if (hasSubTable) {
+          this.getChildrenModuleInfo(item, moduleInfo)
+        }
       }
-      if (hasSubTable) {
-        this.getChildrenModuleInfo(item)
-      }
+
     });
   }
 
   getModuleInfo(ele: HTMLElement) {
-    const isTable = ele.classList.contains(Const.tableClass);
+    const isTable = ele.classList.contains(Const.tableClass)
+    const hasTable = ele.classList.contains(Const.spliteTableFlag)
     const moduleInfo = {
       height: calcHeight(ele),
       isTable,
-      tableModuleInfo: {},
-    };
-    if (isTable) {
-      moduleInfo.tableModuleInfo = this.getTableModuleInfo(
-        ele,
-        moduleInfo.height
-      );
-    } else {
-      this.getChildrenModuleInfo(ele);
+      hasTable,
+      tableModuleInfoList: [{}]
     }
-    return moduleInfo;
+    if (isTable) {
+      moduleInfo.tableModuleInfoList[0] = this.getTableModuleInfo(ele, moduleInfo.height)
+    } else if (hasTable) {
+      this.getChildrenModuleInfo(ele, moduleInfo);
+    }
+    return moduleInfo
   }
+
 
   getTableModuleInfo(ele: HTMLElement, height: number) {
     console.log("getTableModuleInfo ele", ele);

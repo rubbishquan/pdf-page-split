@@ -21,103 +21,105 @@ export default class SplitePage extends DfsChild {
    */
   splitTable(ele: Ele, distance: number) {
     const moduleInfo = this.childMap.get(ele)
-    const {
-      tbTopInfo,
-      table,
-      tbBomInfo,
-      minHeight,
-      marginPadHeight,
-      needMerge,
-      expandRow
-    } = moduleInfo.tableModuleInfo
-    const tbQueue: TbModuleInfoItem[] = [tbTopInfo, table, tbBomInfo].filter(
-      (item) => item.height > 5
-    )
-    if (distance < minHeight) {
-      distance = this.createWraper(ele) - marginPadHeight
-    } else {
-      distance = distance - marginPadHeight
-    }
+    moduleInfo.tableModuleInfo?.forEach((tableModuleInfo: any) => {
+      const {
+        tbTopInfo,
+        table,
+        tbBomInfo,
+        minHeight,
+        marginPadHeight,
+        needMerge,
+        expandRow
+      } = tableModuleInfo
+      const tbQueue: TbModuleInfoItem[] = [tbTopInfo, table, tbBomInfo].filter(
+        (item) => item.height > 5
+      )
+      if (distance < minHeight) {
+        distance = this.createWraper(ele) - marginPadHeight
+      } else {
+        distance = distance - marginPadHeight
+      }
 
-    while (tbQueue.length > 0) {
-      let item: TbModuleInfoItem = tbQueue.shift() as TbModuleInfoItem
-      item.modules.forEach((module: any) => {
-        let flag = false
-        if (
+      while (tbQueue.length > 0) {
+        let item: TbModuleInfoItem = tbQueue.shift() as TbModuleInfoItem
+        item.modules.forEach((module: any) => {
+          let flag = false
+          if (
             module.classList.contains(Const.cardTableTopWraper) &&
             distance > minHeight
-        ) {
-          flag = true
-        }
+          ) {
+            flag = true
+          }
 
-        if (module.classList.contains(Const.cardTableWraper) && distance > item.height) {
-          flag = true
-        }
+          if (module.classList.contains(Const.cardTableWraper) && distance > item.height) {
+            flag = true
+          }
 
-        if (
+          if (
             module.classList.contains(Const.cardTableBomWraper) &&
             distance > module.height
-        ) {
-          flag = true
-        }
+          ) {
+            flag = true
+          }
 
-        if (flag) {
-          distance = this.appendModule(module, module.height, ModuleType.TB_MODULE)
-        } else {
-          if (module.classList.contains(Const.cardTableWraper)) {
-            const rowQueue = this.findRows(module)
-            const headerDom = rowQueue[0]?.cloneNode(true)
-            this.cleanTbody(module)
-            this.cloneTable(module as HTMLElement)
-            if (distance < minHeight) {
-              distance = this.createWraper(module)
-            }
-            distance = this.appendModule(
+          if (flag) {
+            distance = this.appendModule(module, module.height, ModuleType.TB_MODULE)
+          } else {
+            if (module.classList.contains(Const.cardTableWraper)) {
+              const rowQueue = this.findRows(module)
+              const headerDom = rowQueue[0]?.cloneNode(true)
+              this.cleanTbody(module)
+              this.cloneTable(module as HTMLElement)
+              if (distance < minHeight) {
+                distance = this.createWraper(module)
+              }
+              distance = this.appendModule(
                 this.createTBModule(this.cloneEmptyTable as Element),
                 100,
                 ModuleType.TBODY
-            )
+              )
 
-            let tbBomHeight = tbBomInfo.height
-            while (rowQueue.length > 0) {
-              let row = rowQueue.shift()
-              const height = (row as any).calcHeight
-              if (distance > height + tbBomHeight) {
-                distance = this.appendModule(row as Element, height, ModuleType.ROW)
-              } else {
-                distance = this.createWraper(module)
-                distance = this.appendModule(
+              let tbBomHeight = tbBomInfo.height
+              while (rowQueue.length > 0) {
+                let row = rowQueue.shift()
+                const height = (row as any).calcHeight
+                if (distance > height + tbBomHeight) {
+                  distance = this.appendModule(row as Element, height, ModuleType.ROW)
+                } else {
+                  distance = this.createWraper(module)
+                  distance = this.appendModule(
                     this.createTBModule(this.cloneEmptyTable as Element),
                     100,
                     ModuleType.TBODY
-                )
+                  )
 
-                if (expandRow && headerDom) {
-                  const cloneHeader = headerDom.cloneNode(true)
-                  this.appendModule(cloneHeader as Element, 0, ModuleType.ROW)
-                }
-
-                if (needMerge) {
-                  console.log('needMerge', (row as any).mergedInfo)
-                  const { needMergeRow, isLeftRow, needRowSpanNum } = (row as any).mergedInfo
-                  if (needMergeRow && isLeftRow && needRowSpanNum) {
-                    let td = document.createElement('td')
-                    td.classList.add('el-table_1_column_1')
-                    td.classList.add('el-table__cell')
-                    td.setAttribute('rowspan', String(needRowSpanNum))
-                    row && row.prepend(td)
+                  if (expandRow && headerDom) {
+                    const cloneHeader = headerDom.cloneNode(true)
+                    this.appendModule(cloneHeader as Element, 0, ModuleType.ROW)
                   }
+
+                  if (needMerge) {
+                    console.log('needMerge', (row as any).mergedInfo)
+                    const { needMergeRow, isLeftRow, needRowSpanNum } = (row as any).mergedInfo
+                    if (needMergeRow && isLeftRow && needRowSpanNum) {
+                      let td = document.createElement('td')
+                      td.classList.add('el-table_1_column_1')
+                      td.classList.add('el-table__cell')
+                      td.setAttribute('rowspan', String(needRowSpanNum))
+                      row && row.prepend(td)
+                    }
+                  }
+                  distance = this.appendModule(row as Element, height, ModuleType.ROW)
                 }
-                distance = this.appendModule(row as Element, height, ModuleType.ROW)
               }
+            } else {
+              distance = this.createWraper(ele)
+              distance = this.appendModule(module, module.height, ModuleType.TB_MODULE)
             }
-          } else {
-            distance = this.createWraper(ele)
-            distance = this.appendModule(module, module.height, ModuleType.TB_MODULE)
           }
-        }
-      })
-    }
+        })
+      }
+    })
     return distance
   }
 
@@ -131,7 +133,7 @@ export default class SplitePage extends DfsChild {
     const stack = [...(this.childMap.keys() as any)]
     let flag = true
     const next = () => {
-      if (idx >= stack.length ) return
+      if (idx >= stack.length) return
       const ele = stack[idx++]
       if (ele?.classList?.contains(Const.printImg)) {
         this.createWraper(ele)

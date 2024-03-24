@@ -12,6 +12,7 @@ export default class Const {
   static tableRowSpanMerge = 'table-rowspan-merge' // rowspan merge flag
   static tableRowExpand = 'table-row-expand' // table row expand
 
+  static spliteTableFlag = 'table-splite-flag' // page中有table class 标识
   static tableClass = 'card-table' // table class 标识
   static cardTableTopWraper = 'card-table-top-wraper'
   static cardTableWraper = 'card-table-wraper'

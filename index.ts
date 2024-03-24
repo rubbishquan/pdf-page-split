@@ -77,7 +77,7 @@ export type TplMap = Map<string, TplMapItem>
 export interface EleStyleInfo {
   height: number
   isTable: boolean
-  tableModuleInfo: TbModuleInfo
+  tableModuleInfoList: Array<TbModuleInfo>
 }
 
 export interface TbModuleInfoItem {
