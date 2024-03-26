@@ -71,17 +71,13 @@ export default class DfsChild extends PdfPage {
 
   getModuleInfo(ele: HTMLElement) {
     const isTable = ele.classList.contains(Const.tableClass)
-    const hasTable = ele.classList.contains(Const.spliteTableFlag)
     const moduleInfo = {
       height: calcHeight(ele),
       isTable,
-      hasTable,
-      tableModuleInfoList: [{}]
+      tableModuleInfo: {} 
     }
     if (isTable) {
-      moduleInfo.tableModuleInfoList[0] = this.getTableModuleInfo(ele, moduleInfo.height)
-    } else if (hasTable) {
-      this.getChildrenModuleInfo(ele, moduleInfo);
+      moduleInfo.tableModuleInfo = this.getTableModuleInfo(ele, moduleInfo.height)
     }
     return moduleInfo
   }
@@ -90,10 +86,7 @@ export default class DfsChild extends PdfPage {
   getTableModuleInfo(ele: HTMLElement, height: number) {
     console.log("getTableModuleInfo ele", ele);
     const tbModuleInfo: TbModuleInfo = {
-      tbTopInfo: this.getEleHeight(ele, Const.cardTableTopWraper),
-      tbHeader: this.getEleHeight(ele, Const.cardTableTBHeaderWraper),
-      table: this.getEleHeight(ele, Const.cardTableWraper),
-      tbBomInfo: this.getEleHeight(ele, Const.cardTableBomWraper),
+      table: this.getEleHeight(ele),
       minHeight: 0,
       marginPadHeight: 0,
     };
@@ -109,11 +102,25 @@ export default class DfsChild extends PdfPage {
     if (needMerge) {
       this.setRowSpanMergeInfo(ele);
     }
-    let marginPadHeight =
-      height -
-      (tbModuleInfo.tbTopInfo.height +
-        tbModuleInfo.table.height +
-        tbModuleInfo.tbBomInfo.height);
+    // let tbTopInfoHeight = 0;
+    // let tableHeight = 0;
+    // let tbBomInfoHeight = 0;
+    // tbModuleInfo.tbTopInfo?.forEach(item => {
+    //   tbTopInfoHeight += item.height
+    // })
+    // tbModuleInfo.table?.forEach(item => {
+    //   tableHeight += item.height
+    // })
+    // tbModuleInfo.tbBomInfo?.forEach(item => {
+    //   tbBomInfoHeight += item.height
+    // })
+
+    // let marginPadHeight =
+    //   height -
+    //   (tbTopInfoHeight +
+    //     tableHeight +
+    //     tbBomInfoHeight);
+    let marginPadHeight = height - tbModuleInfo.table;
     tbModuleInfo.marginPadHeight = marginPadHeight;
     tbModuleInfo.needMerge = needMerge;
 
@@ -130,11 +137,10 @@ export default class DfsChild extends PdfPage {
     expandRow = false
   ) {
     const nodes = Array.from(ele.querySelectorAll(Const.cardTableTr));
-    const { tbTopInfo, tbHeader } = tbModuleInfo;
     let threeRowHeight = 0;
 
     if (nodes.length > Const.minRowsCount) {
-      nodes.forEach((node, index) => {
+      nodes?.forEach?.((node, index) => {
         if (index < Const.minRowsCount) {
           threeRowHeight += calcHeight(node as HTMLElement) || 0;
         }
@@ -145,7 +151,7 @@ export default class DfsChild extends PdfPage {
           }
         }
       });
-      return tbTopInfo.height + tbHeader.height + threeRowHeight;
+      return threeRowHeight;
     } else {
       nodes.forEach((node, index) => {
         (node as any).calcHeight = node.clientHeight;
@@ -204,24 +210,61 @@ export default class DfsChild extends PdfPage {
     return needMerge;
   }
 
-  getEleHeight(ele: HTMLElement, className: string) {
-    const modules: any = ele.getElementsByTagName(className) || ele.querySelectorAll("." + className);
-    let height = 0;
-    modules.forEach((module: any) => {
-      module.height = calcHeight(module);
-      height += calcHeight(module);
-    });
-    if (ele && modules) {
-      return {
-        modules,
-        height,
-      };
-    } else {
-      return {
-        modules,
-        height: 0,
-      };
+  getEleHeight(ele: HTMLElement) {
+    const nodeQueue = Array.from(ele.children);
+    const modules = [];
+    const result = {
+      height: 0,
+      modules
     }
+    let module;
+    let currentClassName;
+    console.log(nodeQueue, 'nodeQueue')
+      nodeQueue?.forEach?.(node => {
+      const isContainCardTableTopWraper = node?.classList.contains(Const.cardTableTopWraper) 
+      const isContainCardTableWraper = node?.classList.contains(Const.cardTableWraper)
+      const isContainCardTableBomWraper = node?.classList.contains(Const.cardTableBomWraper)
+        if ((isContainCardTableTopWraper || isContainCardTableWraper|| isContainCardTableBomWraper) && node?.classList.contains(currentClassName)) {
+          if (!module) {
+            module = node;
+            modules.push(module)
+          } else {
+            modules[modules?.length  ? modules?.length : 0]?.appendChild?.(node.children);
+          }
+        } else if ((isContainCardTableTopWraper || isContainCardTableWraper|| isContainCardTableBomWraper) && !node?.classList.contains(currentClassName)) {
+            if (module) {
+            modules.push(module)
+            result.height += calcHeight(module)
+          }
+          module = node;
+          if (isContainCardTableTopWraper) {
+            currentClassName = Const.cardTableTopWraper
+          } else if(isContainCardTableWraper) {
+            currentClassName = Const.cardTableWraper
+          } else  {
+            currentClassName = Const.cardTableBomWraper
+          }
+        }
+      });
+    result.modules = modules;
+    return result;
+    // const modules: any = ele.getElementsByTagName(className)?.length ? ele.getElementsByTagName(className):  ele.querySelectorAll("." + className);
+    // let height = 0;
+    // modules?.forEach?.((module: any) => {
+    //   module.height = calcHeight(module);
+    //   height += calcHeight(module);
+    // });
+    // if (ele && modules) {
+    //   return {
+    //     modules,
+    //     height,
+    //   };
+    // } else {
+    //   return {
+    //     modules,
+    //     height: 0,
+    //   };
+    // }
   }
 
   static getTpl() {

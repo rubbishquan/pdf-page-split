@@ -91,10 +91,7 @@ export interface TbQueueItem {
   modules: Array<HTMLElement>
 }
 export interface TbModuleInfo {
-  tbTopInfo: TbQueueItem
-  tbHeader: TbQueueItem
-  table: TbQueueItem
-  tbBomInfo: TbQueueItem
+  table:any 
   minHeight: number
   marginPadHeight: number
   needMerge?: boolean
