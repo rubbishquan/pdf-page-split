@@ -22,6 +22,7 @@ export default class PdfPage {
   pageHeight = 0;
   headerTplMap = DfsChild.headerTplMap;
   footerTplMap = DfsChild.footerTplMap;
+  currentClassName = '';
 
   createWraper(ele: Ele) {
     this.ele = ele;
@@ -163,6 +164,8 @@ export default class PdfPage {
     const module = document.createElement("div");
     // module.style.height = height + "px";
     module.classList.add(name);
+    module.classList.add(this.currentClassName);
+    console.log(this.currentClassName, 'this.currentClassName')
     return module;
   }
 

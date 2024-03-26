@@ -224,8 +224,10 @@ export default class DfsChild extends PdfPage {
       const isContainCardTableWraper = node?.classList.contains(Const.cardTableWraper)
       const isContainCardTableBomWraper = node?.classList.contains(Const.cardTableBomWraper)
         if ((isContainCardTableTopWraper || isContainCardTableWraper|| isContainCardTableBomWraper) && node?.classList.contains(currentClassName)) {
+          if (node.childNodes?.length){
             modules[modules?.length ? modules?.length - 1 : 0]?.appendChild?.(...node.childNodes);
             result.height += calcHeight(node)
+          }
         } else if ((isContainCardTableTopWraper || isContainCardTableWraper|| isContainCardTableBomWraper) && !node?.classList.contains(currentClassName)) {
           node.height = calcHeight(node)
           modules.push(node)

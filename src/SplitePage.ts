@@ -152,6 +152,7 @@ export default class SplitePage extends DfsChild {
     const next = () => {
       if (idx >= stack.length) return;
       const ele = stack[idx++];
+      this.currentClassName = ele.classList?.[0]
       if (ele?.classList?.contains(Const.printImg)) {
         this.createWraper(ele);
         this.appendModule(ele, 0, ModuleType.IMG);
