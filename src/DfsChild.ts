@@ -120,7 +120,7 @@ export default class DfsChild extends PdfPage {
     //   (tbTopInfoHeight +
     //     tableHeight +
     //     tbBomInfoHeight);
-    let marginPadHeight = height - tbModuleInfo.table;
+    let marginPadHeight = height - tbModuleInfo.table?.height;
     tbModuleInfo.marginPadHeight = marginPadHeight;
     tbModuleInfo.needMerge = needMerge;
 
@@ -217,26 +217,18 @@ export default class DfsChild extends PdfPage {
       height: 0,
       modules
     }
-    let module;
     let currentClassName;
     console.log(nodeQueue, 'nodeQueue')
-      nodeQueue?.forEach?.(node => {
+      nodeQueue?.forEach?.((node: any) => {
       const isContainCardTableTopWraper = node?.classList.contains(Const.cardTableTopWraper) 
       const isContainCardTableWraper = node?.classList.contains(Const.cardTableWraper)
       const isContainCardTableBomWraper = node?.classList.contains(Const.cardTableBomWraper)
         if ((isContainCardTableTopWraper || isContainCardTableWraper|| isContainCardTableBomWraper) && node?.classList.contains(currentClassName)) {
-          if (!module) {
-            module = node;
-            modules.push(module)
-          } else {
-            modules[modules?.length  ? modules?.length : 0]?.appendChild?.(node.children);
-          }
+            modules[modules?.length ? modules?.length - 1 : 0]?.appendChild?.(...node.childNodes);
+            result.height += calcHeight(node)
         } else if ((isContainCardTableTopWraper || isContainCardTableWraper|| isContainCardTableBomWraper) && !node?.classList.contains(currentClassName)) {
-            if (module) {
-            modules.push(module)
-            result.height += calcHeight(module)
-          }
-          module = node;
+          node.height = calcHeight(node)
+          modules.push(node)
           if (isContainCardTableTopWraper) {
             currentClassName = Const.cardTableTopWraper
           } else if(isContainCardTableWraper) {
@@ -244,6 +236,7 @@ export default class DfsChild extends PdfPage {
           } else  {
             currentClassName = Const.cardTableBomWraper
           }
+          result.height += node.height
         }
       });
     result.modules = modules;
