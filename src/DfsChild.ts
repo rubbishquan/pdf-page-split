@@ -45,8 +45,10 @@ export default class DfsChild extends PdfPage {
   isModuleHasTable(ele: HTMLElement, hasTable = false) {
     for (let index = 0; index < ele.childNodes.length; index++) {
       const item: any = ele.childNodes[index];
-      if (item.classList?.contains?.(Const.tableClass)) {
+      if (item.classList?.contains?.(Const.cardTableWraper)) {
         hasTable = true;
+      } else {
+        hasTable =false;
       }
     }
     return hasTable;
@@ -84,7 +86,6 @@ export default class DfsChild extends PdfPage {
 
 
   getTableModuleInfo(ele: HTMLElement, height: number) {
-    console.log("getTableModuleInfo ele", ele);
     const tbModuleInfo: TbModuleInfo = {
       table: this.getEleHeight(ele),
       minHeight: 0,
@@ -210,38 +211,51 @@ export default class DfsChild extends PdfPage {
     return needMerge;
   }
 
-  getEleHeight(ele: HTMLElement) {
-    const nodeQueue = Array.from(ele.children);
-    const modules = [];
-    const result = {
+  getEleHeight(ele: HTMLElement, result = {
       height: 0,
-      modules
+      modules: [],
+      currentClassName: ''
+    }) {
+    const nodeQueue = Array.from(ele.children);
+    if (!nodeQueue?.length) {
+      return;
     }
-    let currentClassName;
-    console.log(nodeQueue, 'nodeQueue')
-      nodeQueue?.forEach?.((node: any) => {
-      const isContainCardTableTopWraper = node?.classList.contains(Const.cardTableTopWraper) 
+    nodeQueue?.forEach?.((node: any) => {
       const isContainCardTableWraper = node?.classList.contains(Const.cardTableWraper)
-      const isContainCardTableBomWraper = node?.classList.contains(Const.cardTableBomWraper)
-        if ((isContainCardTableTopWraper || isContainCardTableWraper|| isContainCardTableBomWraper) && node?.classList.contains(currentClassName)) {
-          if (node.childNodes?.length){
-            modules[modules?.length ? modules?.length - 1 : 0]?.appendChild?.(...node.childNodes);
-            result.height += calcHeight(node)
-          }
-        } else if ((isContainCardTableTopWraper || isContainCardTableWraper|| isContainCardTableBomWraper) && !node?.classList.contains(currentClassName)) {
-          node.height = calcHeight(node)
-          modules.push(node)
-          if (isContainCardTableTopWraper) {
-            currentClassName = Const.cardTableTopWraper
-          } else if(isContainCardTableWraper) {
-            currentClassName = Const.cardTableWraper
-          } else  {
-            currentClassName = Const.cardTableBomWraper
-          }
-          result.height += node.height
+      let isContainCardTableChildrenWraper;
+      if (!isContainCardTableWraper) {
+        isContainCardTableChildrenWraper = this.isModuleHasTable(node)
+      }
+      const isContainCardTableTopWraper =  !isContainCardTableWraper
+      const classList = Array.from(node.classList);
+      if(isContainCardTableChildrenWraper || (!classList.length && node.children)) {
+        this.getEleHeight(node, {
+          height: result.height,
+          modules: result.modules,
+          currentClassName: result.currentClassName
+        });
+       } else if (!isContainCardTableChildrenWraper && isContainCardTableTopWraper && result.currentClassName === Const.cardTableTopWraper) {
+        if (node){
+          result.modules[result.modules?.length ? result.modules?.length - 1 : 0]?.appendChild?.(node);
+          result.height += calcHeight(node)
         }
-      });
-    result.modules = modules;
+      } else if (!isContainCardTableChildrenWraper) {
+        node.height = calcHeight(node)
+        if (isContainCardTableTopWraper) {
+          result.currentClassName = Const.cardTableTopWraper
+          const divWrap = document.createElement('div');
+          divWrap?.classList.add('card-table-top-wraper')
+          divWrap.appendChild(node)
+          // @ts-ignore
+          divWrap.height = node.height
+          result.modules.push(divWrap)
+        } else if(isContainCardTableWraper) {
+          result.currentClassName = Const.cardTableWraper
+          result.modules.push(node)
+        }
+        result.height += node.height
+      }
+    });
     return result;
     // const modules: any = ele.getElementsByTagName(className)?.length ? ele.getElementsByTagName(className):  ele.querySelectorAll("." + className);
     // let height = 0;

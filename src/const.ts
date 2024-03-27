@@ -14,7 +14,7 @@ export default class Const {
 
   static tableClass = 'card-table' // table class 标识
   static cardTableTopWraper = 'card-table-top-wraper'
-  static cardTableWraper = 'card-table-wraper'
+  static cardTableWraper = 'reportTable'
   static cardTableBomWraper = 'card-table-bom-wraper'
 
   static printImg = 'print-img'
