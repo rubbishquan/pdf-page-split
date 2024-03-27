@@ -185,7 +185,7 @@ export default class PdfPage {
         let wr = main.querySelectorAll(`.${Const.cardTableWraper}`);
         wr = wr[Array.from(wr).length - 1];
         // @ts-ignore
-        const by = wr.querySelector(`${ele.parentNode?.tagName?.toLowerCase?.()}`);
+        const by = wr.querySelector(`${ele.parenttagName?.toLowerCase?.()}`);
         by.appendChild(ele as Element);
       } else {
         this.wraper

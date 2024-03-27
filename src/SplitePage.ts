@@ -74,6 +74,7 @@ export default class SplitePage extends DfsChild {
         if (module.classList.contains(Const.cardTableWraper)) {
           const rowQueue = this.findRows(module);
           const headerDom = rowQueue[0]?.cloneNode(true);
+          this.cleanTbody(module);
           this.cloneTable(module as HTMLElement);
           if (distance < minHeight) {
             distance = this.createWraper(module);
@@ -83,7 +84,6 @@ export default class SplitePage extends DfsChild {
             100,
             ModuleType.TBODY
           );
-          this.cleanTbody(module);
 
           while (rowQueue.length > 0) {
             let row = rowQueue.shift();
@@ -217,8 +217,11 @@ export default class SplitePage extends DfsChild {
   }
 
   findRows(ele: HTMLElement) {
-    const rows = ele.querySelectorAll(Const.cardTableTr);
-    return Array.from(rows);
+    const rows = ele.querySelectorAll(Const.cardTableTr) as any;
+    return [...rows].map?.((item) => {
+      item.parenttagName = item?.parentNode?.tagName
+      return item;
+    }) || []
   }
 
   cleanTbody(ele: HTMLElement) {
